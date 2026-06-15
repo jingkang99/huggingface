@@ -22,8 +22,9 @@ $(basename "$0") [-h] [-s|-m] MODEL_ROOT MODEL_QUANT
 
   Options:
     -h          show this help text and exit
-    -s          download single gguf file
+    -c          sha256sum checking gguf files	
     -m          download multiple gguf files
+    -s          download single gguf file
     MODEL_ROOT	hf model repository root
     MODEL_QUANT quantized model, default: UD-Q8_K_XL
 
@@ -161,17 +162,28 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts ":hv:s:m:" opt; do
+while getopts ":chv:s:m:" opt; do
     case "${opt}" in
         h)
             show_help
+            exit 0
+            ;;
+        c)
+            [ ! -e _sha256.sum ] && exit 1
+			start_time=$(date +%s)
+            sha256sum -c _sha256.sum | tee _sha256.chk
+            end_time=$(date +%s)
+            echo "  sha256sum chk:" $(($end_time-$start_time))
             exit 0
             ;;
         s)
             hf_sf_download $2 $3
             ;;
         m)
+            start_time=$(date +%s)
             hf_mf_download $2 $3
+            end_time=$(date +%s)
+            echo "  download time:" $(($end_time-$start_time))
             ;;
         \?)
             echo -e "  ${RED}Error${NCL}: invalid option -${OPTARG}" >&2
