@@ -177,13 +177,24 @@ while getopts ":chv:s:m:" opt; do
             exit 0
             ;;
         s)
+            start_time=$(date +%s)
             hf_sf_download $2 $3
+            end_time=$(date +%s)
+			
+            elapsed_seconds=$((end_time - start_time))
+            minutes=$((elapsed_seconds / 60))
+            seconds=$((elapsed_seconds % 60))
+			echo "  download time: ${minutes} minutes and ${seconds} seconds"
             ;;
         m)
             start_time=$(date +%s)
             hf_mf_download $2 $3
             end_time=$(date +%s)
-            echo "  download time:" $(($end_time-$start_time))
+			
+            elapsed_seconds=$((end_time - start_time))
+            minutes=$((elapsed_seconds / 60))
+            seconds=$((elapsed_seconds % 60))
+			echo "  download time: ${minutes} minutes and ${seconds} seconds"
             ;;
         \?)
             echo -e "  ${RED}Error${NCL}: invalid option -${OPTARG}" >&2
