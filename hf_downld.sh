@@ -22,7 +22,8 @@ $(basename "$0") [-h] [-s|-m] MODEL_ROOT MODEL_QUANT
 
   Options:
     -h          show this help text and exit
-    -c          sha256sum checking gguf files	
+    -c          sha256sum checking gguf files
+	-d          download sha256 checksum file
     -m          download multiple gguf files
     -s          download single gguf file
     MODEL_ROOT	hf model repository root
@@ -82,7 +83,7 @@ function hf_mf_download(){
 		[[ $PNTTIME -eq 1 ]] &&  echo -e "  task completd: $ELASPED for" $(du -sh $FILE)"\n"
 	done
 
-	hf_sha256ck $1 $2
+	download_sha256 $1 $2
 }
 
 function hf_sf_download(){
@@ -128,7 +129,7 @@ function hf_sf_download(){
 	fi
 }
 
-function hf_sha256ck(){
+function download_sha256(){
 	CARD="$1"
 	QUNT="${2:-UD-Q8_K_XL}"
 
@@ -162,7 +163,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts ":chv:s:m:" opt; do
+while getopts ":chv:d:s:m:" opt; do
     case "${opt}" in
         h)
             show_help
@@ -174,6 +175,11 @@ while getopts ":chv:s:m:" opt; do
             sha256sum -c _sha256.sum | tee _sha256.chk
             end_time=$(date +%s)
             echo "  sha256sum chk:" $(($end_time-$start_time))
+            exit 0
+            ;;
+        d)
+            echo -e "  ${BCY}download sha256 checksum to _sha256.sum${NCL}" 
+			download_sha256 $2 $3
             exit 0
             ;;
         s)
